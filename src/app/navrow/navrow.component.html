@@ -1,0 +1,31 @@
+<!-- <p>navrow works!</p> -->
+<mat-toolbar class="navrow-toolbar-container">
+    <mat-toolbar-row class="navrow-toolbar-row-container">
+
+      <div class="centered-buttons">
+        <button mat-fab color="primary" style="transform: scale(.7);" [disabled]="rdis" (click)="RButtonClicked()">
+          <mat-icon>arrow_back_ios</mat-icon>
+        </button>
+        @for (item of subMenuItemCats; track $index) {
+        <button style="width: 100%" mat-raised-button (click)="postCategoryClicked(item)">
+          <!-- @let cat =  navMenuItems2[item].categoryTitle; -->
+          {{ item.categoryTitle }}
+        </button>
+        }
+        <button mat-fab color="primary" style="transform: scale(.7);" [disabled]="fdis" (click)="FButtonClicked()">
+          <mat-icon>arrow_forward_ios</mat-icon>
+        </button>
+      </div>
+
+      <div class="sitemenu">
+        @for (item of navMenuItems1; track $index) {
+        @if (item.PageId>1) {
+        <button mat-raised-button (click)="pageClicked(item)">
+          {{ item.PageTitle }}
+        </button>
+        }
+        }
+      </div>
+
+    </mat-toolbar-row>
+  </mat-toolbar>
