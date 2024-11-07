@@ -28,9 +28,14 @@ export class ContentService {
 
     // Subscribe to URL changes reactively
     this.location.onUrlChange((url: string) => {
-      this.currentPath = url;
       console.log("URL changed to: " + this.currentPath);
       console.log('>===>> ' + ComponentName + ' - ' + "URL path: changed to:" + this.currentPath);
+      // The url returned is normalized and it always begins with '/' - so we have to remove it
+      // because we already use it in calling backend endpoint
+      this.currentPath = url.slice(1);
+      if (this.currentPath.trim().length > 1)  {
+        this.signalArticle(this.currentPath);
+      }
     });
 
 
@@ -46,16 +51,17 @@ export class ContentService {
   public $noPostsPageNr = signal<number>(0);
   public $pageContent = signal<string>('');
 
-  private currentPath: string | undefined;
+  private currentPath: string;
 
   public $categories = signal<ICategory[]>([]);
   public $category = signal<ICategory>({ categoryId: 0, categoryTitle: '' });
   public $article = signal<IArticle>({
-    articleId: 0,
-    categoryId: 0,
+    articleId: -1,
+    categoryId: -1,
     articleTitle: '',
     articleSubTitle: '',
     articleContent: '',
+    articleSlug: '',
   });
   public $categoryArticles = signal<IArticle[]>([]);
 
@@ -87,22 +93,31 @@ export class ContentService {
       .getCategoryArticles(categoryId)
       .subscribe((categoryarticles: IArticle[]) => {
         this.$categoryArticles.set(categoryarticles);
-        this.signalArticle(this.$categoryArticles()[0].articleId);
+        // let existArtcle: IArticle =this.$article();
+        if (this.currentPath?.trim().length == 0) {
+          this.signalArticle(this.$categoryArticles()[0].articleId);
+        }
       });
   }
 
-  public signalArticle(articleId: number): void {
-    this.dataService.getArticle(articleId).subscribe((article: IArticle) => {
+  public signalArticle(requestedArticle: number | string): void {
+    console.log('>===>> ' + ComponentName + ' - ' + 'signalArticle()' + ' - ' +  requestedArticle);
+    this.dataService.getArticle(requestedArticle).subscribe((article: IArticle) => {
+      // console.log('>===>> ' + ComponentName + ' - ' + 'signalArticle()' + ' *-* ' +  JSON.stringify(article));
+      console.log('>===>> ' + ComponentName + ' - ' + 'signalArticle()' + ' *-* ' +  article.articleId + ' *-* ' + article.articleSlug);
       if (article) {
         this.$article.set(article);
+        
       } else {
         this.$article.set({
-          articleId: 0,
-          categoryId: 0,
+          articleId: -1,
+          categoryId: -1,
           articleTitle: 'Not Found!',
           articleSubTitle: 'Article Not Found!',
           articleContent: 'Not Found!',
+          articleSlug: 'Not Found!',
         });
+        console.log('>===>> ' + ComponentName + ' - ' + 'signalArticle()' + ' - ' +  JSON.stringify(this.$article()));
       }
     });
   }

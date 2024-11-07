@@ -45,13 +45,13 @@ export class AppComponent {
   constructor() {
     effect(() => {
       this.noPostsPageNumber = this.contentService.$noPostsPageNr();
-      console.log("NoPosts Page Nr ? " + this.noPostsPageNumber);
+      // console.log("'>===>> ' + ComponentName + ' - ' + NoPosts Page Nr ? " + this.noPostsPageNumber);
       if (this.noPostsPageNumber === 0) {
         this.getBreakepoints();
         } else {
           this.tiles = TilesNoPosts;
         }
-        console.log(""+ JSON.stringify(this.tiles));
+        // console.log('>===>> ' + ComponentName + ' - ' + "Tiles: " + JSON.stringify(this.tiles));
     });
   }
 

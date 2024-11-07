@@ -71,6 +71,7 @@ export interface IArticle {
   articleTitle: string;
   articleSubTitle: string;
   articleContent: string;
+  articleSlug: string;
 }
 
 export interface ISiteMenu {

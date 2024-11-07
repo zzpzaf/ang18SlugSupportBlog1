@@ -40,7 +40,7 @@ export class MainComponent {
   private sanitizer = inject(DomSanitizer);
   
 
-  public article: IArticle = {articleId: 0, categoryId: 0, articleTitle: '', articleSubTitle: '', articleContent:  ''};
+  public article: IArticle = {articleId: 0, categoryId: 0, articleTitle: '', articleSubTitle: '', articleContent:  '', articleSlug: ''};
   public pgNr: number = 0;
   public pageContent = '';
   public safeHtmlContent!: SafeHtml;

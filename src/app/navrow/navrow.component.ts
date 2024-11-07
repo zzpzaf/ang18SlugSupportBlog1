@@ -68,7 +68,7 @@ export class NavrowComponent {
 
 
   setInitialSubMenuItemCats(st:number): void {
-    console.log('>===>> ' + ComponentName + ' - Start Nr: ' + st);
+    // console.log('>===>> ' + ComponentName + ' - Start Nr: ' + st);
     if (this.navMenuItems2.length == 0) return;
     this.subMenuItemCats = [];
     let indx: number;

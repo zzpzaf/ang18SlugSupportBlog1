@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { catchError, Observable, retry, throwError } from 'rxjs';
+import { catchError, Observable, of, retry, throwError } from 'rxjs';
 import { IArticle, ICategory } from './dbObjects/blogObjects';
 import { environment } from '../environments/environment';
 
@@ -48,11 +48,33 @@ export class DataService {
     .pipe(retry(1), catchError(this.handleError));
   }
 
-  getArticle(articleId: number): Observable<IArticle> {
+  getArticle(article: number| string): Observable<IArticle> {
+    switch ( typeof(article) ) {
+      case "number":
+        return this.getArticleById(article as number);
+        //break;
+      case "string":
+        return this.getArticleBySlug(article as string);
+        //break;
+      default:
+        const msg = "Invalid argument type: article must be a number or string";
+        console.log('>===>> ' + ComponentName + ' - ' + msg);
+        throw new Error(msg);
+        // return of(null);
+    }
+  }
+  getArticleById(articleId: number): Observable<IArticle> {
     return this.http
       .get<IArticle>(this.baseURL + `articles` + '/articleId/' + articleId)       
       .pipe(retry(1), catchError(this.handleError));
   }
+  getArticleBySlug(articleSlug: string): Observable<IArticle> {
+    return this.http
+      .get<IArticle>(this.baseURL + `articles` + '/articleSlug/' + articleSlug)       
+      .pipe(retry(1), catchError(this.handleError));
+  }
+
+
 
 
   getPage(htmlPageName: string): Observable<string> {
