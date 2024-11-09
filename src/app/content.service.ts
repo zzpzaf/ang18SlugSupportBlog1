@@ -1,8 +1,6 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { DataService } from './data.service';
 import { IArticle, ICategory, Pages } from './dbObjects/blogObjects';
-import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
-import { filter } from 'rxjs';
 import { Location } from '@angular/common';
 
 const ComponentName = 'ContentService';
@@ -11,47 +9,23 @@ const ComponentName = 'ContentService';
   providedIn: 'root',
 })
 export class ContentService {
+
   constructor() {
-    if (this.$categories.length === 0) this.signalCategories();
-    if (this.$categoryArticles().length === 0) this.signalCategoryArticles(1);
-
-    // this.router.events
-    //   .pipe(filter((event) => event instanceof NavigationEnd))
-    //   .subscribe(() => {
-    //     this.currentPath = this.router.url; // Updates path on navigation changes
-    //     console.log('>===>> ' + ComponentName + ' - ' +"Browser's URL path: " + this.currentPath);
-    //   });
-
-    // Capture the current browser's URL path
-    this.currentPath = this.location.path();
-    console.log('>===>> ' + ComponentName + ' - ' + "Initial path: " + this.currentPath);
-
-    // Subscribe to URL changes reactively
-    this.location.onUrlChange((url: string) => {
-      console.log("URL changed to: " + this.currentPath);
-      console.log('>===>> ' + ComponentName + ' - ' + "URL path: changed to:" + this.currentPath);
-      // The url returned is normalized and it always begins with '/' - so we have to remove it
-      // because we already use it in calling backend endpoint
-      this.currentPath = url.slice(1);
-      if (this.currentPath.trim().length > 1)  {
-        this.signalArticle(this.currentPath);
-      }
-    });
-
-
+    const initialPath: string =  this.location.path().trim();
+    this.signalArticle(initialPath);
+    if (this.$categories.length === 0) {
+      // console.log('>=== uuu >> ' + ComponentName + ' *** No Categories ! ***' );
+      this.signalCategories();
+    }
   }
-
-  private dataService = inject(DataService);
-  // private router = inject(Router);
-  // private activeRoute = inject(ActivatedRoute);
-  private location = inject(Location);
 
   componentName = this.constructor.name.replace('_', '');
 
+  private dataService = inject(DataService);
+  private location = inject(Location);
+
   public $noPostsPageNr = signal<number>(0);
   public $pageContent = signal<string>('');
-
-  private currentPath: string;
 
   public $categories = signal<ICategory[]>([]);
   public $category = signal<ICategory>({ categoryId: 0, categoryTitle: '' });
@@ -65,10 +39,12 @@ export class ContentService {
   });
   public $categoryArticles = signal<IArticle[]>([]);
 
+
+
   public signalCategories(): void {
     this.dataService.getCategories().subscribe((categories: ICategory[]) => {
       this.$categories.set(categories);
-      if (this.$category().categoryId === 0) this.signalCategory(1);
+      // if (this.$category().categoryId === 0) this.signalCategory(1);
     });
   }
 
@@ -78,6 +54,7 @@ export class ContentService {
       .subscribe((category: ICategory) => {
         if (category) {
           this.$category.set(category);
+          // console.log('>=== ccc >> ' + ComponentName + ' - ' + 'signalCategory()' + ' *  Category: * ' +  this.$category().categoryId + ' **-** ' );
           this.signalCategoryArticles(this.$category().categoryId);
         } else {
           this.$category.set({
@@ -93,21 +70,25 @@ export class ContentService {
       .getCategoryArticles(categoryId)
       .subscribe((categoryarticles: IArticle[]) => {
         this.$categoryArticles.set(categoryarticles);
-        // let existArtcle: IArticle =this.$article();
-        if (this.currentPath?.trim().length == 0) {
-          this.signalArticle(this.$categoryArticles()[0].articleId);
-        }
+        // console.log('>=== --- >> ' + ComponentName + ' - ' + 'signalCategoryArticles()' + ' * Before ifs * ' +  this.$article().articleId + ' **-** ' + this.$article().articleSlug);
+        if (this.$article().categoryId != categoryId) this.signalArticle(this.$categoryArticles()[0].articleId);
+        // console.log('>=== --- >> ' + ComponentName + ' - ' + 'signalCategoryArticles()' + '* After ifs * ' +  this.$article().articleId + ' **-** ' + this.$article().articleSlug);
       });
   }
 
+
   public signalArticle(requestedArticle: number | string): void {
-    console.log('>===>> ' + ComponentName + ' - ' + 'signalArticle()' + ' - ' +  requestedArticle);
+    // console.log('>=== aaa >> ' + ComponentName + ' - ' + 'signalArticle()' + ' - we are going to fetch the article with id: ' +  requestedId);
     this.dataService.getArticle(requestedArticle).subscribe((article: IArticle) => {
-      // console.log('>===>> ' + ComponentName + ' - ' + 'signalArticle()' + ' *-* ' +  JSON.stringify(article));
-      console.log('>===>> ' + ComponentName + ' - ' + 'signalArticle()' + ' *-* ' +  article.articleId + ' *-* ' + article.articleSlug);
+      // console.log('>=== aaa >> ' + ComponentName + ' - ' + 'signalArticle() 1' + ' article fetched: ' + article.articleId + ' * article category ID * ' +  article.categoryId + ' * before Categoy category ID * ' + this.$category().categoryId);
       if (article) {
         this.$article.set(article);
-        
+        if (typeof(requestedArticle) === 'number' ) {
+          // !!!! Update address bar with article's slug !!!!
+          this.location.replaceState(this.$article().articleSlug);
+        }
+        this.signalCategory(this.$article().categoryId);
+        // console.log('>=== aaa >> ' + ComponentName + ' - ' + 'signalArticle() 2' + ' article fetched: ' + this.$article().articleId  + ' * article category ID * ' +  this.$article().categoryId + ' * Categoy category ID * ' + this.$category().categoryId);
       } else {
         this.$article.set({
           articleId: -1,
@@ -117,32 +98,20 @@ export class ContentService {
           articleContent: 'Not Found!',
           articleSlug: 'Not Found!',
         });
-        console.log('>===>> ' + ComponentName + ' - ' + 'signalArticle()' + ' - ' +  JSON.stringify(this.$article()));
+        // console.log('>=== aaa >> ' + ComponentName + ' - ' + 'signalArticle()' + ' - ' +  JSON.stringify(this.$article()));
       }
     });
   }
 
+ 
   public signalPageContent(pageId: number): void {
     if (pageId === 0) {
       this.$noPostsPageNr.set(0);
-      console.log('>===>> ' + ComponentName + ' - ' + 'NO Page Content');
+      // console.log('>===>> ' + ComponentName + ' - ' + 'NO Page Content');
       return;
     }
 
-    // if (pageId > 10) {
-    //   this.$noPostsPageNr.set(pageId);
-    //   console.log('External HTML Page');
-    //   return;
-    // }
-
     const page = Pages.find((p) => p.PageId === pageId);
-    // if (page) {
-    //   this.$pageContent.set(page.PageContent);
-    //   this.$noPostsPageNr.set(pageId);
-    // } else {
-    //   this.$pageContent.set('Unknown Page!');
-    // }
-
     if (page) {
       this.dataService
         .getPage(page.PageTitle)
@@ -160,3 +129,4 @@ export class ContentService {
     // console.log('>===>> ' + ComponentName + ' - ' + 'Page Id: ' + this.$noPostsPageNr() + ' Content: ' + this.$pageContent());
   }
 }
+

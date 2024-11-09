@@ -59,10 +59,11 @@ export class NavrowComponent {
 
   postCategoryClicked(category: ICategory): void {
     this.contentService.signalPageContent(0);
-    // console.log('>===>> ' + ComponentName + ' - ' + 'Posts Category Clicked', category);
+
     if (this.selectedCategory.categoryId != category.categoryId) {
+      console.log('>===>> ' + ComponentName + ' - ' + 'Posts Category Clicked', category);
       this.contentService.signalCategory(category.categoryId);
-      this.contentService.signalCategoryArticles(category.categoryId);
+      // this.contentService.signalCategoryArticles(category.categoryId);
     }
   }
 
