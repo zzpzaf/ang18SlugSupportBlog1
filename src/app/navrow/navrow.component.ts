@@ -32,18 +32,19 @@ export class NavrowComponent {
       this.setInitialSubMenuItemCats(this.currStart);
       // console.log('>===>> ' + ComponentName + ' - Nav Menu Items - Categories Changed/Received:', this.navMenuItems2);
       this.selectedCategory = this.contentService.$category();
-      // if (this.selectedCategory.categoryId > 0) {
-      //   console.log('>===>> ' + ComponentName + ' - Selected Category: ', this.selectedCategory.categoryTitle);
-      // } 
+      this.contentService.$noPostsPageNr() === 0 ? this.isNavMenuItems2Visible = true : this.isNavMenuItems2Visible = false ;
     });
   }
 
 
   private contentService = inject(ContentService);
   navbarName: string = 'Navigation';
-  navMenuItems1 = Pages;
+  // navMenuItems1 = Pages;
+  navMenuItems1: IPage[] = Pages.filter((page) => page.PageId < 99);
   navMenuItems2: ICategory[] = [];
   
+  isNavMenuItems2Visible = false;
+
   subMenuItemCats: ICategory[] = [];
   catButtonsNr: number = 4;
   currStart: number = 0;
@@ -52,18 +53,25 @@ export class NavrowComponent {
   selectedCategory!: ICategory;
 
 
+
+  toggleNavMenuItems2(): void {
+    this.isNavMenuItems2Visible = !this.isNavMenuItems2Visible;
+  }
+
+
   pageClicked(page: IPage): void {
     // console.log('>===>> ' + ComponentName + ' - ' + 'Page Nr Clicked', page.PageTitle);
     this.contentService.signalPageContent(page.PageId);
   }
 
   postCategoryClicked(category: ICategory): void {
-    this.contentService.signalPageContent(0);
-
-    if (this.selectedCategory.categoryId != category.categoryId) {
-      console.log('>===>> ' + ComponentName + ' - ' + 'Posts Category Clicked', category);
+    if (
+      this.selectedCategory.categoryId != category.categoryId ||
+      this.contentService.$noPostsPageNr() > 0
+      ) {
+      // console.log('>===>> ' + ComponentName + ' - ' + 'Posts Category Clicked', category);
+      this.contentService.signalPageContent(0);
       this.contentService.signalCategory(category.categoryId);
-      // this.contentService.signalCategoryArticles(category.categoryId);
     }
   }
 

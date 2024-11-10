@@ -26,29 +26,19 @@ export class LeftpaneComponent {
     effect(() => {
       this.category = this.contentService.$category();
       this.listItems = this.contentService.$categoryArticles();
-      if (LeftpaneComponent.prevSelectedItem >= 0 && LeftpaneComponent.prevCategoryId === this.category.categoryId ) {
-        this.selectedItem = LeftpaneComponent.prevSelectedItem;
-      } else {
-        this.selectedItem = 0;
-        LeftpaneComponent.prevSelectedItem = 0;
-      }
+      const i = this.listItems.findIndex((i) => i.articleSlug === this.contentService.$article().articleSlug);
+      i <= -1 ? this.selectedItem = 0 : this.selectedItem = i;
     });
   }
 
   private contentService = inject(ContentService);
-  // componentName = this.constructor.name.replace('_', '');
-
+ 
   category: ICategory = {categoryId: 0, categoryTitle: ''};
   selectedItem: number | null = null;
   listItems: IArticle[] = []; 
 
-  static prevSelectedItem: number = -1;
-  static prevCategoryId: number = -1;
-
   itemClicked(item: IArticle, i: number): void {
     this.selectedItem = i;
-    LeftpaneComponent.prevSelectedItem = i ;
-    LeftpaneComponent.prevCategoryId = item.categoryId;
     this.contentService.signalArticle(item.articleId);
   }
 

@@ -5,7 +5,7 @@ import { IArticle } from '../dbObjects/blogObjects';
 import { ContentService } from '../content.service';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 
-import { MarkdownModule } from 'ngx-markdown';	    // <-----
+import { MarkdownModule } from 'ngx-markdown';	    
 
 const ComponentName = 'MainComponent';
 @Component({
@@ -14,7 +14,7 @@ const ComponentName = 'MainComponent';
   imports: [
     MatCardModule, 
     MatDividerModule,
-    MarkdownModule,							                      // <-----
+    MarkdownModule,							                      
   ],
   templateUrl: './main.component.html',
   styleUrl: './main.component.scss',
@@ -40,7 +40,7 @@ export class MainComponent {
   private sanitizer = inject(DomSanitizer);
   
 
-  public article: IArticle = {articleId: 0, categoryId: 0, articleTitle: '', articleSubTitle: '', articleContent:  '', articleSlug: ''};
+  public article: IArticle = {articleId: -1, categoryId: -1, articleTitle: '', articleSubTitle: '', articleContent:  '', articleSlug: ''};
   public pgNr: number = 0;
   public pageContent = '';
   public safeHtmlContent!: SafeHtml;

@@ -82,11 +82,11 @@ export interface ISiteMenu {
 export interface IPage {
   PageId: number;
   PageTitle: string;
-  // PageContent: string
+  PageSlug: string;
 }
 export const Pages: IPage[] = [
-  { PageId: 1, PageTitle: 'Home' },
-  { PageId: 2, PageTitle: 'About' },
-  { PageId: 3, PageTitle: 'Contact' },
-  // { PageId: 11, PageTitle: 'External' },
+  { PageId: 1, PageTitle: 'Home', PageSlug: 'home'},
+  { PageId: 2, PageTitle: 'About', PageSlug: 'about'},
+  { PageId: 3, PageTitle: 'Contact', PageSlug: 'contact' },
+  { PageId: 99, PageTitle: 'NotFound', PageSlug: '' },
 ];
